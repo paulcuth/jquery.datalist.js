@@ -32,6 +32,9 @@ $.fn.datalist = function() {
         //the main guts of the plugin
         datalist = $('#' + $this.attr('list')),
         opts = datalist.find('option'),
+		selected = -1,
+		typed = this.value,
+		
         
         //wrapper stuffs
         width = $this.width(),
@@ -41,7 +44,7 @@ $.fn.datalist = function() {
            'left': 0, 
            'top': height + 6, 
            'margin': 0, 
-           'padding': '0 2px',
+           'padding': 0,
            'list-style': 'none',
            'border': '1px solid #ccc', 
            '-moz-box-shadow': '0px 2px 3px #ccc', 
@@ -60,18 +63,51 @@ $.fn.datalist = function() {
     } else {
     //otherwise, build the structure
       opts.each(function(i, opt) {
-        $('<li>')
+        $('<li>').css ({'padding': '0 2px'})
           .append('<span class="value">'+opt.value+'</span>')
           .append('<span class="label" style="float:right">'+opt.label+'</span>')
           .appendTo(ul);
       });
     };
     
-	// Filter list after key press
-	$this.keyup (function () {
-		ul.find('li').each (function () {
-			$(this)[($(this).text().toLowerCase().indexOf ($this.attr('value').toLowerCase ()) == -1)? 'hide' : 'show']();
-		});
+	//keyboard access
+	$this.keyup (function(e) {
+		var value, $visible;
+		
+		if (e.keyCode == 38 || e.keyCode == 40) {	// Up, Down
+
+			//update selected option
+			ul.find('li.selected').removeClass('selected');		
+			$visible = ul.find('li:visible');
+
+			selected += e.keyCode - 39;
+
+			if (selected == $visible.length) {
+				selected = -1;
+			} else if (selected == -2) {
+				selected = $visible.length - 1;
+			}
+
+			//hightlight selected option and insert value into field
+			value = (selected == -1)? typed : $visible.slice(selected, selected + 1).addClass('selected').find('span.value').text();
+			$this.attr('value', value);
+
+			e.preventDefault ();
+
+		} else {
+
+			//if value changed, reset selection
+			if ((value = $this.attr('value')) != typed) {
+				typed = value;
+				selected = -1;
+				ul.find('li.selected').removeClass('selected');
+			}	
+
+			//filter list to only those that match typed value
+			ul.find('li').each (function () {
+				$(this)[($(this).text().toLowerCase().indexOf ($this.attr('value').toLowerCase ()) == -1)? 'hide' : 'show']();
+			});
+		}
 	});
 
     //stick the stuff in and hide it
