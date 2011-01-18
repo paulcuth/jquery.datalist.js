@@ -25,4 +25,5 @@ for a native implementation before building one.
     
 ## Note:
 In your css file, you should add the following:
-    datalist {display:block;}
+    datalist {display:none;}
+	.datalist .selected {background-color: #ddddff;}
