@@ -67,6 +67,13 @@ $.fn.datalist = function() {
       });
     };
     
+	// Filter list after key press
+	$this.keyup (function () {
+		ul.find('li').each (function () {
+			$(this)[($(this).text().toLowerCase().indexOf ($this.attr('value').toLowerCase ()) == -1)? 'hide' : 'show']();
+		});
+	});
+
     //stick the stuff in and hide it
     $this.wrap(wrapper);
     ul.hide().insertAfter($this);
